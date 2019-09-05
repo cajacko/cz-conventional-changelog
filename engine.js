@@ -69,161 +69,160 @@ module.exports = function(options) {
       // See inquirer.js docs for specifics.
       // You can also opt to use another input
       // collection library if you prefer.
-      hooks
-        .prompt(cz.prompt)([
-          {
-            type: 'list',
-            name: 'type',
-            message: "Select the type of change that you're committing:",
-            choices: choices,
-            default: options.defaultType
-          },
-          {
-            type: 'input',
-            name: 'scope',
-            message:
-              'What is the scope of this change (e.g. component or file name): (press enter to skip)',
-            default: options.defaultScope,
-            filter: function(value) {
-              return value.trim().toLowerCase();
-            }
-          },
-          {
-            type: 'input',
-            name: 'subject',
-            message: function(answers) {
-              return (
-                'Write a short, imperative tense description of the change (max ' +
-                maxSummaryLength(options, answers) +
-                ' chars):\n'
-              );
-            },
-            default: options.defaultSubject,
-            validate: function(subject, answers) {
-              var filteredSubject = filterSubject(subject);
-              return filteredSubject.length == 0
-                ? 'subject is required'
-                : filteredSubject.length <= maxSummaryLength(options, answers)
-                ? true
-                : 'Subject length must be less than or equal to ' +
-                  maxSummaryLength(options, answers) +
-                  ' characters. Current length is ' +
-                  filteredSubject.length +
-                  ' characters.';
-            },
-            transformer: function(subject, answers) {
-              var filteredSubject = filterSubject(subject);
-              var color =
-                filteredSubject.length <= maxSummaryLength(options, answers)
-                  ? chalk.green
-                  : chalk.red;
-              return color('(' + filteredSubject.length + ') ' + subject);
-            },
-            filter: function(subject) {
-              return filterSubject(subject);
-            }
-          },
-          {
-            type: 'input',
-            name: 'body',
-            message:
-              'Provide a longer description of the change: (press enter to skip)\n',
-            default: options.defaultBody
-          },
-          {
-            type: 'confirm',
-            name: 'isBreaking',
-            message: 'Are there any breaking changes?',
-            default: false
-          },
-          {
-            type: 'input',
-            name: 'breakingBody',
-            default: '-',
-            message:
-              'A BREAKING CHANGE commit requires a body. Please enter a longer description of the commit itself:\n',
-            when: function(answers) {
-              return answers.isBreaking && !answers.body;
-            },
-            validate: function(breakingBody, answers) {
-              return (
-                breakingBody.trim().length > 0 ||
-                'Body is required for BREAKING CHANGE'
-              );
-            }
-          },
-          {
-            type: 'input',
-            name: 'breaking',
-            message: 'Describe the breaking changes:\n',
-            when: function(answers) {
-              return answers.isBreaking;
-            }
-          },
-
-          {
-            type: 'confirm',
-            name: 'isIssueAffected',
-            message: 'Does this change affect any open issues?',
-            default: options.defaultIssues ? true : false
-          },
-          {
-            type: 'input',
-            name: 'issuesBody',
-            default: '-',
-            message:
-              'If issues are closed, the commit requires a body. Please enter a longer description of the commit itself:\n',
-            when: function(answers) {
-              return (
-                answers.isIssueAffected &&
-                !answers.body &&
-                !answers.breakingBody
-              );
-            }
-          },
-          {
-            type: 'input',
-            name: 'issues',
-            message: 'Add issue references (e.g. "fix #123", "re #123".):\n',
-            when: function(answers) {
-              return answers.isIssueAffected;
-            },
-            default: options.defaultIssues ? options.defaultIssues : undefined
+      hooks.prompt(cz.prompt)([
+        {
+          type: 'list',
+          name: 'type',
+          message: "Select the type of change that you're committing:",
+          choices: choices,
+          default: options.defaultType
+        },
+        {
+          type: 'input',
+          name: 'scope',
+          message:
+            'What is the scope of this change (e.g. component or file name): (press enter to skip)',
+          default: options.defaultScope,
+          filter: function(value) {
+            return value.trim().toLowerCase();
           }
-        ])
-        .then(function(answers) {
-          var wrapOptions = {
-            trim: true,
-            cut: false,
-            newline: '\n',
-            indent: '',
-            width: options.maxLineWidth
-          };
+        },
+        {
+          type: 'input',
+          name: 'subject',
+          message: function(answers) {
+            return (
+              'Write a short, imperative tense description of the change (max ' +
+              maxSummaryLength(options, answers) +
+              ' chars):\n'
+            );
+          },
+          default: options.defaultSubject,
+          validate: function(subject, answers) {
+            var filteredSubject = filterSubject(subject);
+            return filteredSubject.length == 0
+              ? 'subject is required'
+              : filteredSubject.length <= maxSummaryLength(options, answers)
+              ? true
+              : 'Subject length must be less than or equal to ' +
+                maxSummaryLength(options, answers) +
+                ' characters. Current length is ' +
+                filteredSubject.length +
+                ' characters.';
+          },
+          transformer: function(subject, answers) {
+            var filteredSubject = filterSubject(subject);
+            var color =
+              filteredSubject.length <= maxSummaryLength(options, answers)
+                ? chalk.green
+                : chalk.red;
+            return color('(' + filteredSubject.length + ') ' + subject);
+          },
+          filter: function(subject) {
+            return filterSubject(subject);
+          }
+        },
+        {
+          type: 'input',
+          name: 'body',
+          message:
+            'Provide a longer description of the change: (press enter to skip)\n',
+          default: options.defaultBody
+        },
+        {
+          type: 'confirm',
+          name: 'isBreaking',
+          message: 'Are there any breaking changes?',
+          default: false
+        },
+        {
+          type: 'input',
+          name: 'breakingBody',
+          default: '-',
+          message:
+            'A BREAKING CHANGE commit requires a body. Please enter a longer description of the commit itself:\n',
+          when: function(answers) {
+            return answers.isBreaking && !answers.body;
+          },
+          validate: function(breakingBody, answers) {
+            return (
+              breakingBody.trim().length > 0 ||
+              'Body is required for BREAKING CHANGE'
+            );
+          }
+        },
+        {
+          type: 'input',
+          name: 'breaking',
+          message: 'Describe the breaking changes:\n',
+          when: function(answers) {
+            return answers.isBreaking;
+          }
+        },
 
-          // parentheses are only needed when a scope is present
-          var scope = answers.scope ? '(' + answers.scope + ')' : '';
+        {
+          type: 'confirm',
+          name: 'isIssueAffected',
+          message: 'Does this change affect any open issues?',
+          default: options.defaultIssues ? true : false
+        },
+        {
+          type: 'input',
+          name: 'issuesBody',
+          default: '-',
+          message:
+            'If issues are closed, the commit requires a body. Please enter a longer description of the commit itself:\n',
+          when: function(answers) {
+            return (
+              answers.isIssueAffected &&
+              !answers.body &&
+              !answers.breakingBody
+            );
+          }
+        },
+        {
+          type: 'input',
+          name: 'issues',
+          message: 'Add issue references (e.g. "fix #123", "re #123".):\n',
+          when: function(answers) {
+            return answers.isIssueAffected;
+          },
+          default: options.defaultIssues ? options.defaultIssues : undefined
+        }
+      ])
+      .then(function(answers) {
+        var wrapOptions = {
+          trim: true,
+          cut: false,
+          newline: '\n',
+          indent: '',
+          width: options.maxLineWidth
+        };
 
-          // Hard limit this line in the validate
-          var head = answers.type + scope + ': ' + answers.subject;
+        // parentheses are only needed when a scope is present
+        var scope = answers.scope ? '(' + answers.scope + ')' : '';
 
-          // Wrap these lines at options.maxLineWidth characters
-          var body = answers.body ? wrap(answers.body, wrapOptions) : false;
+        // Hard limit this line in the validate
+        var head = answers.type + scope + ': ' + answers.subject;
 
-          // Apply breaking change prefix, removing it if already present
-          var breaking = answers.breaking ? answers.breaking.trim() : '';
-          breaking = breaking
-            ? 'BREAKING CHANGE: ' + breaking.replace(/^BREAKING CHANGE: /, '')
-            : '';
-          breaking = breaking ? wrap(breaking, wrapOptions) : false;
+        // Wrap these lines at options.maxLineWidth characters
+        var body = answers.body ? wrap(answers.body, wrapOptions) : false;
 
-          var issues = answers.issues
-            ? wrap(answers.issues, wrapOptions)
-            : false;
+        // Apply breaking change prefix, removing it if already present
+        var breaking = answers.breaking ? answers.breaking.trim() : '';
+        breaking = breaking
+          ? 'BREAKING CHANGE: ' + breaking.replace(/^BREAKING CHANGE: /, '')
+          : '';
+        breaking = breaking ? wrap(breaking, wrapOptions) : false;
 
-          commit(filter([head, body, breaking, issues]).join('\n\n'));
+        var issues = answers.issues
+          ? wrap(answers.issues, wrapOptions)
+          : false;
 
-          hooks.postCommit(answers);
-        });
+        commit(filter([head, body, breaking, issues]).join('\n\n'));
+
+        hooks.postCommit(answers);
+      });
     }
   };
 };
