@@ -1,49 +1,75 @@
 var fuzzy = require('fuzzy');
+var { git } = require('@cajacko/template');
+var chalk = require('chalk');
 var prompt = require('./prompt');
 var store = require('./store');
 var emojiChoices = require('./emojiChoices');
 
-exports.prompt = originalPrompt => options => {
-  const emojiIndex = options.findIndex(({ name }) => name === 'subject') + 1;
+function stage(options) {
+  if (options.doNotStageAutomatically) return Promise.resolve();
 
-  options.splice(emojiIndex, 0, {
-    type: 'autocomplete',
-    name: 'emoji',
-    message: 'Prepend an emoji',
-    source: (answers, input) =>
-      Promise.resolve(['none'].concat(emojiChoices(input))),
-    filter: text => {
-      if (!text || text === 'none') return null;
+  return git.hasStagedChanges(process.cwd()).then(hasStagedChanges => {
+    if (hasStagedChanges) return Promise.resolve();
 
-      var value = text.split(' ')[0];
+    return (
+      git
+        .hasUnstagedChanges(process.cwd())
+        .then(hasUnstagedChanges => {
+          if (!hasUnstagedChanges) {
+            throw new Error(chalk.red('There are no changes to commit'));
+          }
 
-      if (value && value !== '') {
-        return value.trim() + ' ';
-      }
-
-      return null;
-    }
+          return git.stageAll().then(run);
+        })
+        // eslint-disable-next-line no-console
+        .catch(console.error)
+    );
   });
+}
 
-  return prompt(
-    options.map(option => {
-      if (option.name !== 'scope') return option;
+exports.prompt = (originalPrompt, options) => questions =>
+  stage(options).then(() => {
+    const emojiIndex =
+      questions.findIndex(({ name }) => name === 'subject') + 1;
 
-      return {
-        ...option,
-        type: 'autocomplete',
-        suggestOnly: true,
-        source: (answers, input) =>
-          store
-            .getScopeSuggestions()
-            .then(suggestions =>
-              fuzzy
-                .filter(input || '', suggestions || [])
-                .map(({ original }) => original)
-            )
-      };
-    })
-  );
-};
+    questions.splice(emojiIndex, 0, {
+      type: 'autocomplete',
+      name: 'emoji',
+      message: 'Prepend an emoji',
+      source: (answers, input) =>
+        Promise.resolve(['none'].concat(emojiChoices(input))),
+      filter: text => {
+        if (!text || text === 'none') return null;
+
+        var value = text.split(' ')[0];
+
+        if (value && value !== '') {
+          return value.trim() + ' ';
+        }
+
+        return null;
+      }
+    });
+
+    return prompt(
+      questions.map(question => {
+        if (question.name !== 'scope') return question;
+
+        return {
+          ...question,
+          type: 'autocomplete',
+          suggestOnly: true,
+          source: (answers, input) =>
+            store
+              .getScopeSuggestions()
+              .then(suggestions =>
+                fuzzy
+                  .filter(input || '', suggestions || [])
+                  .map(({ original }) => original)
+              )
+        };
+      })
+    );
+  });
 
 exports.postCommit = answers => store.addScopeSuggestion(answers.scope);

@@ -69,7 +69,7 @@ module.exports = function(options) {
       // See inquirer.js docs for specifics.
       // You can also opt to use another input
       // collection library if you prefer.
-      hooks.prompt(cz.prompt)([
+      hooks.prompt(cz.prompt, options)([
         {
           type: 'list',
           name: 'type',
@@ -216,7 +216,7 @@ module.exports = function(options) {
 
         commit(filter([head, body, breaking, issues]).join('\n\n'));
 
-        hooks.postCommit(answers);
+        hooks.postCommit(answers, options);
       });
     }
   };

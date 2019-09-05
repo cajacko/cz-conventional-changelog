@@ -21,6 +21,7 @@
   "author": "Jim Cummins <jimthedev@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@cajacko/template": "^1.5.3",
     "chalk": "^2.4.1",
     "commitizen": "^4.0.3",
     "conventional-commit-types": "^2.0.0",
