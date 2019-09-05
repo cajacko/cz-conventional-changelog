@@ -30,7 +30,9 @@
     "inquirer-autocomplete-prompt": "^1.0.1",
     "lodash.map": "^4.5.1",
     "longest": "^2.0.1",
+    "punycode": "^2.1.1",
     "right-pad": "^1.0.1",
+    "unicode-emoji-annotations": "^1.0.4",
     "word-wrap": "^1.0.3"
   },
   "devDependencies": {
