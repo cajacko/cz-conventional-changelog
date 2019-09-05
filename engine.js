@@ -5,6 +5,9 @@ var map = require('lodash.map');
 var longest = require('longest');
 var rightPad = require('right-pad');
 var chalk = require('chalk');
+var fuzzy = require('fuzzy');
+var prompt = require('./prompt');
+var store = require('./store');
 
 var filter = function(array) {
   return array.filter(function(x) {
@@ -68,7 +71,7 @@ module.exports = function(options) {
       // See inquirer.js docs for specifics.
       // You can also opt to use another input
       // collection library if you prefer.
-      cz.prompt([
+      prompt(cz.prompt, [
         {
           type: 'list',
           name: 'type',
@@ -77,8 +80,17 @@ module.exports = function(options) {
           default: options.defaultType
         },
         {
-          type: 'input',
+          type: 'autocomplete',
           name: 'scope',
+          suggestOnly: true,
+          source: (answers, input) =>
+            store
+              .getScopeSuggestions()
+              .then(suggestions =>
+                fuzzy
+                  .filter(input || '', suggestions || [])
+                  .map(({ original }) => original)
+              ),
           message:
             'What is the scope of this change (e.g. component or file name): (press enter to skip)',
           default: options.defaultScope,
@@ -214,6 +226,8 @@ module.exports = function(options) {
         var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
 
         commit(filter([head, body, breaking, issues]).join('\n\n'));
+
+        store.addScopeSuggestion(answers.scope);
       });
     }
   };
