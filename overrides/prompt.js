@@ -5,4 +5,4 @@ var AutoComplete = require('inquirer-autocomplete-prompt');
 
 inquirer.registerPrompt('autocomplete', AutoComplete);
 
-module.exports = (originalPrompt, options) => inquirer.prompt(options);
+module.exports = options => inquirer.prompt(options);
