@@ -15,7 +15,7 @@ var filter = function(array) {
 
 var headerLength = function(answers) {
   return (
-    answers.type.length + 5 + (answers.scope ? answers.scope.length + 2 : 0)
+    answers.type.length + 4 + (answers.scope ? answers.scope.length + 2 : 0)
   );
 };
 

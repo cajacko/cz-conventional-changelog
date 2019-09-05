@@ -18,7 +18,7 @@ exports.prompt = originalPrompt => options => {
       var value = text.split(' ')[0];
 
       if (value && value !== '') {
-        return value.trim() + '  ';
+        return value.trim() + ' ';
       }
 
       return null;
