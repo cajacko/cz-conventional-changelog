@@ -174,9 +174,7 @@ module.exports = function(options) {
             'If issues are closed, the commit requires a body. Please enter a longer description of the commit itself:\n',
           when: function(answers) {
             return (
-              answers.isIssueAffected &&
-              !answers.body &&
-              !answers.breakingBody
+              answers.isIssueAffected && !answers.body && !answers.breakingBody
             );
           }
         },
@@ -189,8 +187,7 @@ module.exports = function(options) {
           },
           default: options.defaultIssues ? options.defaultIssues : undefined
         }
-      ])
-      .then(function(answers) {
+      ]).then(function(answers) {
         var wrapOptions = {
           trim: true,
           cut: false,
@@ -215,9 +212,7 @@ module.exports = function(options) {
           : '';
         breaking = breaking ? wrap(breaking, wrapOptions) : false;
 
-        var issues = answers.issues
-          ? wrap(answers.issues, wrapOptions)
-          : false;
+        var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
 
         commit(filter([head, body, breaking, issues]).join('\n\n'));
 
