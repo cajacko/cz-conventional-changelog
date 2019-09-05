@@ -1,6 +1,7 @@
 var fuzzy = require('fuzzy');
 var { git } = require('@cajacko/template');
 var chalk = require('chalk');
+var lint = require('@commitlint/lint');
 var prompt = require('./prompt');
 var store = require('./store');
 var emojiChoices = require('./emojiChoices');
@@ -73,3 +74,10 @@ exports.prompt = (originalPrompt, options) => questions =>
   });
 
 exports.postCommit = answers => store.addScopeSuggestion(answers.scope);
+
+exports.message = message =>
+  lint(message).then(report => {
+    if (report.valid) return message;
+    console.error(report);
+    throw new Error('Commit message is not valid, see logs above');
+  });

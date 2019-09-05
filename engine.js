@@ -214,7 +214,10 @@ module.exports = function(options) {
 
         var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
 
-        commit(filter([head, body, breaking, issues]).join('\n\n'));
+        return hooks.message(filter([head, body, breaking, issues]).join('\n\n'));
+      })
+      .then((message) => {
+        commit(message);
 
         hooks.postCommit(answers, options);
       });
