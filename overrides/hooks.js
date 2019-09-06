@@ -40,7 +40,7 @@ exports.prompt = (originalPrompt, options) => questions =>
       source: (answers, input) =>
         Promise.resolve(['none'].concat(emojiChoices(input))),
       filter: text => {
-        if (!text || text === 'none') return null;
+        if (!text || text === 'none') return '';
 
         var value = text.split(' ')[0];
 
@@ -48,7 +48,7 @@ exports.prompt = (originalPrompt, options) => questions =>
           return value.trim() + ' ';
         }
 
-        return null;
+        return '';
       }
     });
 
@@ -81,3 +81,13 @@ exports.message = message =>
     console.error(report);
     throw new Error('Commit message is not valid, see logs above');
   });
+
+exports.issues = (issues, wrap, wrapOptions) => {
+  return git.getCurrentBranch().then(branch => {
+    const branchLine = `branch ${branch}`;
+
+    if (!issues) return wrap(branchLine, wrapOptions);
+
+    return wrap(`${issues}\n${branchLine}`, wrapOptions);
+  });
+};
