@@ -1,13 +1,14 @@
 {
   "name": "@cajacko/cz-conventional-changelog",
-  "version": "0.0.0-semantically-released.0",
+  "version": "0.1.0",
   "description": "Commitizen adapter following the conventional-changelog format.",
   "main": "index.js",
   "scripts": {
     "commit": "git-cz",
     "test": "mocha *.test.js",
     "format": "prettier --write *.js",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "publish": "npm publish --access public"
   },
   "homepage": "https://github.com/commitizen/cz-conventional-changelog",
   "repository": {
