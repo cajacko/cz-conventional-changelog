@@ -5,6 +5,7 @@ var map = require('lodash.map');
 var longest = require('longest');
 var rightPad = require('right-pad');
 var chalk = require('chalk');
+var hooks = require('./overrides/hooks');
 
 var filter = function(array) {
   return array.filter(function(x) {
@@ -14,7 +15,7 @@ var filter = function(array) {
 
 var headerLength = function(answers) {
   return (
-    answers.type.length + 2 + (answers.scope ? answers.scope.length + 2 : 0)
+    answers.type.length + 4 + (answers.scope ? answers.scope.length + 2 : 0)
   );
 };
 
@@ -68,7 +69,7 @@ module.exports = function(options) {
       // See inquirer.js docs for specifics.
       // You can also opt to use another input
       // collection library if you prefer.
-      cz.prompt([
+      hooks.prompt(cz.prompt, options)([
         {
           type: 'list',
           name: 'type',
@@ -199,7 +200,7 @@ module.exports = function(options) {
         var scope = answers.scope ? '(' + answers.scope + ')' : '';
 
         // Hard limit this line in the validate
-        var head = answers.type + scope + ': ' + answers.subject;
+        var head = answers.type + scope + ': ' + answers.emoji + answers.subject;
 
         // Wrap these lines at options.maxLineWidth characters
         var body = answers.body ? wrap(answers.body, wrapOptions) : false;
@@ -213,7 +214,13 @@ module.exports = function(options) {
 
         var issues = answers.issues ? wrap(answers.issues, wrapOptions) : false;
 
-        commit(filter([head, body, breaking, issues]).join('\n\n'));
+        return hooks.issues(issues, wrap, wrapOptions).then((finalIssues) => 
+          hooks.message(filter([head, body, breaking, finalIssues]).join('\n\n')).then((message) => {
+            commit(message);
+
+            hooks.postCommit(answers, options);
+          })
+        );
       });
     }
   };
